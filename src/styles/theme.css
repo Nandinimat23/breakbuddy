@@ -1,0 +1,73 @@
+/**
+ * BreakBuddy design tokens.
+ *
+ * A "cute productivity companion + casual game" — soft rounded
+ * cards, playful gradients, generous whitespace. Deliberately not a
+ * medical/fitness look. Change these variables to re-theme the whole
+ * app without touching component code.
+ */
+:root {
+  /* Brand */
+  --color-primary: #7c5cff;
+  --color-primary-dark: #6342e6;
+  --color-primary-light: #efe9ff;
+  --color-accent-pink: #ff6fa5;
+  --color-accent-orange: #ffb347;
+  --color-accent-green: #34c78e;
+  --color-accent-blue: #3fb6ff;
+
+  /* Neutrals */
+  --color-bg: #faf9ff;
+  --color-surface: #ffffff;
+  --color-surface-muted: #f3f1fb;
+  --color-border: #e6e1f7;
+  --color-text: #241f3d;
+  --color-text-muted: #6b6584;
+  --color-text-inverse: #ffffff;
+
+  /* Feedback */
+  --color-success: #22b573;
+  --color-danger: #ef4b6a;
+  --color-warning: #f5a623;
+
+  /* Elevation */
+  --shadow-sm: 0 1px 2px rgba(36, 31, 61, 0.06);
+  --shadow-md: 0 8px 24px rgba(36, 31, 61, 0.10);
+  --shadow-lg: 0 16px 40px rgba(36, 31, 61, 0.16);
+
+  /* Shape */
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-pill: 999px;
+
+  /* Spacing scale */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+
+  /* Type */
+  --font-sans: "Poppins", "Segoe UI", ui-sans-serif, system-ui, sans-serif;
+  --font-size-sm: 0.875rem;
+  --font-size-md: 1rem;
+  --font-size-lg: 1.25rem;
+  --font-size-xl: 1.75rem;
+  --font-size-2xl: 2.25rem;
+
+  --transition-fast: 150ms ease;
+  --transition-med: 250ms ease;
+
+  color-scheme: light;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --transition-fast: 0ms;
+    --transition-med: 0ms;
+  }
+}

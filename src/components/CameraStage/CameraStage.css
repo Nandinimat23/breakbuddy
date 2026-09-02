@@ -1,0 +1,44 @@
+.bb-camera-stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: #1a1330;
+  box-shadow: var(--shadow-md);
+}
+
+.bb-camera-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scaleX(-1); /* mirror, so the user sees themselves naturally */
+}
+
+.bb-camera-demo-bg {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #2a1f4d, #4a2f6b);
+}
+
+.bb-camera-demo-badge {
+  position: absolute;
+  top: var(--space-3);
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-pill);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  z-index: 3;
+}
+
+.bb-camera-overlay {
+  position: absolute;
+  inset: 0;
+  /* Overlay coordinates are NOT mirrored — games position elements using
+     already-mirrored normalized points from MotionTrackingService, or,
+     in demo mode, directly from pointer position within this layer. */
+}

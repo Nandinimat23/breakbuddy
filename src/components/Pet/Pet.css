@@ -1,0 +1,58 @@
+.bb-pet {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-2);
+}
+
+.bb-pet-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--color-primary-light), #fff);
+  border: 2px solid var(--color-border);
+  border-radius: 50%;
+  box-shadow: var(--shadow-md);
+  animation: bb-pet-bounce 2.4s ease-in-out infinite;
+}
+
+.bb-pet--sm .bb-pet-avatar {
+  width: 64px;
+  height: 64px;
+  font-size: 2rem;
+}
+
+.bb-pet--lg .bb-pet-avatar {
+  width: 120px;
+  height: 120px;
+  font-size: 4rem;
+}
+
+.bb-pet-bubble {
+  max-width: 220px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  box-shadow: var(--shadow-md);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  text-align: right;
+  animation: bb-pet-pop var(--transition-med) ease;
+}
+
+@keyframes bb-pet-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+@keyframes bb-pet-pop {
+  from { opacity: 0; transform: translateY(6px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bb-pet-avatar {
+    animation: none;
+  }
+}

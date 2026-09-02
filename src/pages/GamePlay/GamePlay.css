@@ -1,0 +1,32 @@
+.bb-gameplay-header {
+  display: flex;
+  justify-content: center;
+  font-weight: 700;
+  font-size: var(--font-size-lg);
+  margin-bottom: var(--space-3);
+}
+
+.bb-gameplay-loading {
+  text-align: center;
+  color: var(--color-text-muted);
+  margin-top: var(--space-3);
+}
+
+.bb-gameplay-complete {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-3);
+  padding: var(--space-7) var(--space-5);
+}
+
+.bb-gameplay-score {
+  font-size: var(--font-size-xl);
+  font-weight: 800;
+  color: var(--color-primary-dark);
+}
+
+.bb-gameplay-accuracy {
+  color: var(--color-text-muted);
+}

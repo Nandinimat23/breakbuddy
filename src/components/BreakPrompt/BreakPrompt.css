@@ -1,0 +1,65 @@
+.bb-break-prompt {
+  position: fixed;
+  right: var(--space-5);
+  bottom: var(--space-5);
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-3);
+  z-index: 50;
+  animation: bb-slide-in var(--transition-med) ease;
+}
+
+.bb-break-prompt-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  font-size: 2.25rem;
+  background: linear-gradient(135deg, var(--color-primary-light), #fff);
+  border: 2px solid var(--color-border);
+  border-radius: 50%;
+  box-shadow: var(--shadow-lg);
+  flex-shrink: 0;
+}
+
+.bb-break-prompt-bubble {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: var(--space-4) var(--space-5);
+  max-width: 260px;
+}
+
+.bb-break-prompt-text {
+  font-weight: 700;
+  margin-bottom: var(--space-1);
+}
+
+.bb-break-prompt-sub {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  margin-bottom: var(--space-4);
+}
+
+.bb-break-prompt-actions {
+  display: flex;
+  gap: var(--space-2);
+}
+
+@keyframes bb-slide-in {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 480px) {
+  .bb-break-prompt {
+    left: var(--space-4);
+    right: var(--space-4);
+  }
+  .bb-break-prompt-bubble {
+    max-width: none;
+    flex: 1;
+  }
+}

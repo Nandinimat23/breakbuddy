@@ -1,0 +1,55 @@
+.bb-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  border: none;
+  border-radius: var(--radius-pill);
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
+}
+
+.bb-button--md {
+  padding: var(--space-3) var(--space-5);
+  font-size: var(--font-size-md);
+}
+
+.bb-button--lg {
+  padding: var(--space-4) var(--space-6);
+  font-size: var(--font-size-lg);
+}
+
+.bb-button--primary {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-accent-pink));
+  color: var(--color-text-inverse);
+  box-shadow: var(--shadow-md);
+}
+
+.bb-button--secondary {
+  background: var(--color-surface-muted);
+  color: var(--color-text);
+}
+
+.bb-button--ghost {
+  background: transparent;
+  color: var(--color-text-muted);
+}
+
+.bb-button--danger {
+  background: var(--color-danger);
+  color: var(--color-text-inverse);
+}
+
+.bb-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.bb-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.bb-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

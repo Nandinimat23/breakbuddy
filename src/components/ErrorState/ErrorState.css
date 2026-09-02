@@ -1,0 +1,21 @@
+.bb-error-state {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.bb-error-state-icon {
+  font-size: 2.5rem;
+}
+
+.bb-error-state p {
+  color: var(--color-text-muted);
+}
+
+.bb-error-state-actions {
+  display: flex;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+}

@@ -1,0 +1,95 @@
+import type { BreakBuddySettings, ProgressState } from "../types";
+import { DEFAULT_ENABLED_GAMES } from "../games/registry";
+
+/**
+ * Thin localStorage wrapper.
+ *
+ * Everything in the app that needs to persist goes through here so
+ * that swapping localStorage for a real backend (e.g. Supabase) later
+ * only means editing this one file — no component should ever call
+ * `localStorage` directly.
+ */
+
+const KEYS = {
+  onboarded: "breakbuddy:onboarded",
+  settings: "breakbuddy:settings",
+  progress: "breakbuddy:progress",
+  events: "breakbuddy:events",
+} as const;
+
+export const DEFAULT_SETTINGS: BreakBuddySettings = {
+  pet: "dog",
+  workingHours: { start: "10:00", end: "18:00" },
+  breakFrequencyMinutes: 120,
+  breakDurationSeconds: 30,
+  enabledGames: DEFAULT_ENABLED_GAMES,
+  gameSelectionMode: "user-chooses",
+  reducedMotion: false,
+};
+
+function todayKey(): string {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function emptyDay(): ProgressState["today"] {
+  return { date: todayKey(), breaksCompleted: 0, movementSeconds: 0, gamesPlayed: {} };
+}
+
+export const DEFAULT_PROGRESS: ProgressState = {
+  today: emptyDay(),
+  streakDays: 0,
+  lastCompletedDate: null,
+  history: [],
+};
+
+function safeParse<T>(raw: string | null, fallback: T): T {
+  if (!raw) return fallback;
+  try {
+    return { ...fallback, ...JSON.parse(raw) } as T;
+  } catch {
+    return fallback;
+  }
+}
+
+function safeWrite(key: string, value: unknown) {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch (err) {
+    // localStorage can throw in private-browsing/quota-exceeded situations.
+    // BreakBuddy should never crash because it couldn't persist a preference.
+    console.warn(`[storage] failed to write "${key}"`, err);
+  }
+}
+
+export function hasOnboarded(): boolean {
+  return localStorage.getItem(KEYS.onboarded) === "true";
+}
+
+export function setOnboarded(): void {
+  safeWrite(KEYS.onboarded, true);
+}
+
+export function loadSettings(): BreakBuddySettings {
+  return safeParse(localStorage.getItem(KEYS.settings), DEFAULT_SETTINGS);
+}
+
+export function saveSettings(settings: BreakBuddySettings): void {
+  safeWrite(KEYS.settings, settings);
+}
+
+export function loadProgress(): ProgressState {
+  const stored = safeParse<ProgressState>(localStorage.getItem(KEYS.progress), DEFAULT_PROGRESS);
+  // Roll over to a fresh day if the stored "today" is stale.
+  if (stored.today.date !== todayKey()) {
+    stored.today = emptyDay();
+  }
+  return stored;
+}
+
+export function saveProgress(progress: ProgressState): void {
+  safeWrite(KEYS.progress, progress);
+}
+
+export function resetAllData(): void {
+  Object.values(KEYS).forEach((k) => localStorage.removeItem(k));
+}

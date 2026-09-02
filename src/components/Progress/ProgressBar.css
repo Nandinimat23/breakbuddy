@@ -1,0 +1,24 @@
+.bb-progress {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.bb-progress-track {
+  height: 10px;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-muted);
+  overflow: hidden;
+}
+
+.bb-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-accent-pink));
+  border-radius: var(--radius-pill);
+  transition: width var(--transition-med);
+}
+
+.bb-progress-label {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}

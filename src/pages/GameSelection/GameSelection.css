@@ -1,0 +1,21 @@
+.bb-game-selection h1 {
+  font-size: var(--font-size-xl);
+  margin: var(--space-3) 0 var(--space-1);
+}
+
+.bb-game-selection-sub {
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-5);
+}
+
+.bb-game-selection-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-4);
+}
+
+@media (max-width: 480px) {
+  .bb-game-selection-grid {
+    grid-template-columns: 1fr;
+  }
+}
