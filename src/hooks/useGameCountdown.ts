@@ -10,6 +10,18 @@ export function useGameCountdown(durationSeconds: number, onExpire: () => void) 
   const [remaining, setRemaining] = useState(durationSeconds);
   const expiredRef = useRef(false);
 
+  // `onExpire` is a fresh closure every render (it captures the game's
+  // current score/hits/etc). The interval below is only set up once
+  // per mount, so without this ref it would keep calling the very
+  // first render's `onExpire` — reporting whatever the score was at
+  // t=0 (i.e. always 0) once time actually runs out. Keeping the
+  // latest callback in a ref and calling *that* from the interval is
+  // what makes the final score/hits accurate.
+  const onExpireRef = useRef(onExpire);
+  useEffect(() => {
+    onExpireRef.current = onExpire;
+  }, [onExpire]);
+
   useEffect(() => {
     const start = Date.now();
     const id = setInterval(() => {
@@ -19,11 +31,10 @@ export function useGameCountdown(durationSeconds: number, onExpire: () => void) 
       if (left <= 0 && !expiredRef.current) {
         expiredRef.current = true;
         clearInterval(id);
-        onExpire();
+        onExpireRef.current();
       }
     }, 100);
     return () => clearInterval(id);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [durationSeconds]);
 
   return remaining;

@@ -1,6 +1,6 @@
 import type { PetDefinition } from "../types";
-import buddyImage from "../assets/pets/buddy.jpg";
-import mittensImage from "../assets/pets/mittens.jpg";
+import buddyImage from "../assets/pets/buddy.png";
+import mittensImage from "../assets/pets/mittens.png";
 
 /**
  * Pet catalogue. Adding a third pet later is just adding another
