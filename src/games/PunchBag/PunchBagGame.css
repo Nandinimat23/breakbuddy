@@ -1,0 +1,29 @@
+.bb-punchbag-bag {
+  position: absolute;
+  left: 50%;
+  bottom: 2%;
+  width: 30%;
+  aspect-ratio: 120 / 240;
+  transform: translateX(-50%);
+  z-index: 1;
+  filter: drop-shadow(0 10px 14px rgba(0, 0, 0, 0.35));
+  animation: bb-punchbag-sway 3.2s ease-in-out infinite;
+  transform-origin: top center;
+}
+
+.bb-punchbag-bag svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+@keyframes bb-punchbag-sway {
+  0%, 100% { transform: translateX(-50%) rotate(-1.5deg); }
+  50% { transform: translateX(-50%) rotate(1.5deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bb-punchbag-bag {
+    animation: none;
+  }
+}

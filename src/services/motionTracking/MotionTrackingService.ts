@@ -71,21 +71,25 @@ export class MotionTrackingService {
     if (kind === "none") return;
     const vision = await FilesetResolver.forVisionTasks(CDN_WASM);
 
-    if (kind === "hand" && !this.handLandmarker) {
+    const needsHand = kind === "hand" || kind === "hand-face";
+    const needsPose = kind === "pose";
+    const needsFace = kind === "face" || kind === "hand-face";
+
+    if (needsHand && !this.handLandmarker) {
       this.handLandmarker = await HandLandmarker.createFromOptions(vision, {
         baseOptions: { modelAssetPath: HAND_MODEL, delegate: "GPU" },
         runningMode: "VIDEO",
         numHands: 1,
       });
     }
-    if (kind === "pose" && !this.poseLandmarker) {
+    if (needsPose && !this.poseLandmarker) {
       this.poseLandmarker = await PoseLandmarker.createFromOptions(vision, {
         baseOptions: { modelAssetPath: POSE_MODEL, delegate: "GPU" },
         runningMode: "VIDEO",
         numPoses: 1,
       });
     }
-    if (kind === "face" && !this.faceLandmarker) {
+    if (needsFace && !this.faceLandmarker) {
       this.faceLandmarker = await FaceLandmarker.createFromOptions(vision, {
         baseOptions: { modelAssetPath: FACE_MODEL, delegate: "GPU" },
         runningMode: "VIDEO",

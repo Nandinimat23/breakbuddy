@@ -4,7 +4,9 @@ import { useGameCountdown } from "../../hooks/useGameCountdown";
 import { usePetReaction } from "../../hooks/usePetReaction";
 import { formatCountdown } from "../../utils/time";
 import { GameHUD, PetCorner } from "../../components/GameHUD/GameHUD";
+import { SoccerBall } from "../../assets/gameArt/GameArt";
 import "../games-common.css";
+import "./KickBallGame.css";
 
 const KICK_Y_THRESHOLD = 0.55; // upper half of frame = "leg raised"
 const KICK_TOLERANCE_X = 0.22;
@@ -12,11 +14,18 @@ const KICK_COOLDOWN_MS = 700;
 const GOAL_ZONES = [0.25, 0.5, 0.75];
 const GOAL_MESSAGES = ["GOAL! Amazing kick! ⚽", "Woohoo! Nice shot!", "You've got this!"];
 const MISS_MESSAGES = ["Just wide — try again!", "So close!", "Almost there!"];
+const REST_Y = 0.8;
+const GOAL_Y = 0.22;
+const DRIBBLE_MIN_X = 0.24;
+const DRIBBLE_MAX_X = 0.76;
+const FLIGHT_MS = 380;
 
 /**
- * Game 3 — Kick the Ball (PRD section 14). Pose-tracking game: a
- * rapid upward ankle movement (edge-detected, not just "leg is up")
- * counts as one kick; landing near the current goal position scores.
+ * Game 3 — Kick the Ball (PRD section 14). Pose-tracking game: the
+ * ball sits near your feet and nudges left/right as you shift your
+ * leg toward it (a "dribble" feel), then a rapid upward ankle
+ * movement (edge-detected, not just "leg is up") kicks it — it
+ * animates flying to wherever the goal currently is before resetting.
  */
 export function KickBallGame({ frame, demoMode, durationSeconds, petId, onComplete }: GameScreenProps) {
   const [score, setScore] = useState(0);
@@ -24,9 +33,12 @@ export function KickBallGame({ frame, demoMode, durationSeconds, petId, onComple
   const [attempts, setAttempts] = useState(0);
   const [goalX, setGoalX] = useState(0.5);
   const [feedback, setFeedback] = useState<"goal" | "miss" | null>(null);
+  const [ballPos, setBallPos] = useState({ x: 0.5, y: REST_Y });
+  const [flying, setFlying] = useState(false);
   const prevY = useRef<number | null>(null);
   const lastKickAt = useRef(0);
   const finishedRef = useRef(false);
+  const flyingRef = useRef(false);
   const { reaction, react } = usePetReaction();
 
   const finish = () => {
@@ -40,14 +52,28 @@ export function KickBallGame({ frame, demoMode, durationSeconds, petId, onComple
   useEffect(() => {
     const ankle = frame.ankles[0] ?? frame.ankles[1];
     if (!ankle) return;
+
+    // Dribble: while the ball is on the ground, let it drift toward
+    // whichever side the player's leg is on, so it feels nudged
+    // rather than glued in place.
+    if (!flyingRef.current) {
+      const dribbleX = Math.min(DRIBBLE_MAX_X, Math.max(DRIBBLE_MIN_X, ankle.x));
+      setBallPos((p) => ({ x: p.x + (dribbleX - p.x) * 0.25, y: REST_Y }));
+    }
+
     const wasBelow = prevY.current !== null && prevY.current > KICK_Y_THRESHOLD;
     const isAbove = ankle.y <= KICK_Y_THRESHOLD;
     const cooledDown = Date.now() - lastKickAt.current > KICK_COOLDOWN_MS;
 
-    if (wasBelow && isAbove && cooledDown) {
+    if (wasBelow && isAbove && cooledDown && !flyingRef.current) {
       lastKickAt.current = Date.now();
-      const scored = Math.abs(ankle.x - goalX) <= KICK_TOLERANCE_X;
+      const kickedFromX = ballPos.x;
+      const scored = Math.abs(kickedFromX - goalX) <= KICK_TOLERANCE_X;
       setAttempts((a) => a + 1);
+      flyingRef.current = true;
+      setFlying(true);
+      setBallPos({ x: goalX, y: GOAL_Y });
+
       if (scored) {
         setHits((h) => h + 1);
         setScore((s) => s + 20);
@@ -57,7 +83,14 @@ export function KickBallGame({ frame, demoMode, durationSeconds, petId, onComple
         setFeedback("miss");
         react(MISS_MESSAGES[Math.floor(Math.random() * MISS_MESSAGES.length)]);
       }
-      setGoalX(GOAL_ZONES[Math.floor(Math.random() * GOAL_ZONES.length)]);
+
+      const nextGoalX = GOAL_ZONES[Math.floor(Math.random() * GOAL_ZONES.length)];
+      setTimeout(() => {
+        setGoalX(nextGoalX);
+        setBallPos({ x: 0.5, y: REST_Y });
+        flyingRef.current = false;
+        setFlying(false);
+      }, FLIGHT_MS);
       setTimeout(() => setFeedback(null), 500);
     }
     prevY.current = ankle.y;
@@ -91,9 +124,13 @@ export function KickBallGame({ frame, demoMode, durationSeconds, petId, onComple
         aria-hidden="true"
       />
 
-      <span className="bb-game-anchor" style={{ left: "50%", top: "78%" }} aria-hidden="true">
-        ⚽
-      </span>
+      <div
+        className={`bb-kickball-ball ${flying ? "is-flying" : ""}`}
+        style={{ left: `${ballPos.x * 100}%`, top: `${ballPos.y * 100}%` }}
+        aria-hidden="true"
+      >
+        <SoccerBall />
+      </div>
 
       {feedback && (
         <span
@@ -108,8 +145,8 @@ export function KickBallGame({ frame, demoMode, durationSeconds, petId, onComple
 
       <div className="bb-game-instruction">
         {demoMode
-          ? "Move your mouse up quickly to kick toward the goal!"
-          : "Raise your leg quickly to kick toward the goal!"}
+          ? "Move your mouse to the ball, then flick it up to kick!"
+          : "Step toward the ball, then raise your leg quickly to kick!"}
       </div>
     </>
   );

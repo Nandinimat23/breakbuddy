@@ -1,11 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import type { GameScreenProps } from "../GameScreenProps";
+import { firstPoint } from "../GameScreenProps";
 import { useGameCountdown } from "../../hooks/useGameCountdown";
 import { usePetReaction } from "../../hooks/usePetReaction";
 import { formatCountdown } from "../../utils/time";
-import { ProgressBar } from "../../components/Progress/ProgressBar";
 import { GameHUD, PetCorner } from "../../components/GameHUD/GameHUD";
+import { JuiceGlass } from "../../assets/gameArt/GameArt";
 import "../games-common.css";
+import "./DrinkUpGame.css";
 
 /**
  * "Looking up" is approximated as the nose landmark sitting in the
@@ -14,19 +16,24 @@ import "../games-common.css";
  * simplified version, don't pretend it's more precise than it is").
  */
 const LOOK_UP_Y_THRESHOLD = 0.42;
+const PICKUP_SPOT = { x: 0.5, y: 0.84 };
+const GRAB_RADIUS = 0.17;
 
 /**
- * Game 2 — Drink Up (PRD section 13). Face-tracking game: hold a
- * gentle "look up" position to drain the drink. Never requires
+ * Game 2 — Drink Up (PRD section 13). Hand + face tracking game:
+ * reach for the glass to pick it up, carry it toward your mouth, then
+ * hold a gentle "look up" position to drink it. Never requires
  * holding an uncomfortable position — progress simply pauses (never
- * reverses) when you look back down.
+ * reverses) when you look back down or let go.
  */
 export function DrinkUpGame({ frame, demoMode, durationSeconds, petId, onComplete }: GameScreenProps) {
   const [level, setLevel] = useState(100);
+  const [held, setHeld] = useState(false);
   const [lookingUp, setLookingUp] = useState(false);
   const lastTick = useRef(Date.now());
   const finishedRef = useRef(false);
   const milestoneRef = useRef(new Set<number>());
+  const lastHandPos = useRef(PICKUP_SPOT);
   const { reaction, react } = usePetReaction();
   const drainPerSecond = 100 / Math.max(6, durationSeconds * 0.8);
 
@@ -44,6 +51,22 @@ export function DrinkUpGame({ frame, demoMode, durationSeconds, petId, onComplet
   const remaining = useGameCountdown(durationSeconds, () => finish(false));
 
   useEffect(() => {
+    if (!held) react("Pick up your drink! 🥤");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    const hand = firstPoint(frame.hands);
+    if (hand) lastHandPos.current = hand;
+
+    if (!held) {
+      if (hand && Math.hypot(hand.x - PICKUP_SPOT.x, hand.y - PICKUP_SPOT.y) <= GRAB_RADIUS) {
+        setHeld(true);
+        react("Now tilt back and drink!");
+      }
+      return;
+    }
+
     const isUp = frame.nose !== null && frame.nose.y <= LOOK_UP_Y_THRESHOLD;
     setLookingUp(isUp);
     const now = Date.now();
@@ -53,7 +76,7 @@ export function DrinkUpGame({ frame, demoMode, durationSeconds, petId, onComplet
       setLevel((l) => Math.max(0, l - drainPerSecond * dt));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [frame]);
+  }, [frame, held]);
 
   useEffect(() => {
     const done = Math.round(100 - level);
@@ -68,6 +91,8 @@ export function DrinkUpGame({ frame, demoMode, durationSeconds, petId, onComplet
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [level]);
 
+  const glassPos = held ? lastHandPos.current : PICKUP_SPOT;
+
   return (
     <>
       <GameHUD
@@ -77,34 +102,28 @@ export function DrinkUpGame({ frame, demoMode, durationSeconds, petId, onComplet
         scoreLabel="DONE"
       />
 
-      <span
-        className="bb-game-anchor"
-        style={{ left: "50%", top: lookingUp ? "35%" : "50%", transition: "top 300ms ease" }}
+      <div
+        className={`bb-drinkup-glass ${held ? "is-held" : "is-waiting"} ${lookingUp ? "is-drinking" : ""}`}
+        style={{ left: `${glassPos.x * 100}%`, top: `${glassPos.y * 100}%` }}
         aria-hidden="true"
       >
-        🥤
-      </span>
-
-      <div
-        style={{
-          position: "absolute",
-          left: "50%",
-          bottom: "12%",
-          transform: "translateX(-50%)",
-          width: "60%",
-        }}
-      >
-        <ProgressBar value={level} label={`Drink level: ${Math.round(level)}%`} color="linear-gradient(90deg,#ffb347,#ff6fa5)" />
+        <JuiceGlass level={level} />
       </div>
+
+      {!held && <div className="bb-drinkup-pickup-ring" style={{ left: `${PICKUP_SPOT.x * 100}%`, top: `${PICKUP_SPOT.y * 100}%` }} aria-hidden="true" />}
 
       <PetCorner petId={petId} reaction={reaction} />
 
       <div className="bb-game-instruction">
-        {demoMode
-          ? "Press and hold, dragging up toward the top of the frame"
-          : lookingUp
-            ? "Nice! Keep looking up gently…"
-            : "Look up to drink!"}
+        {!held
+          ? demoMode
+            ? "Move your mouse to the glass to pick it up"
+            : "Reach toward your drink to pick it up!"
+          : demoMode
+            ? "Press and hold your mouse button to tilt back and drink"
+            : lookingUp
+              ? "Nice! Keep looking up gently…"
+              : "Bring it to your mouth and tilt your head back!"}
       </div>
     </>
   );

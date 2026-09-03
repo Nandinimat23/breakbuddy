@@ -84,13 +84,10 @@
 }
 
 .bb-hud-pet-avatar {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  object-fit: cover;
-  object-position: center 15%;
-  border: 2px solid #fff;
-  box-shadow: var(--shadow-md);
+  height: 84px;
+  width: auto;
+  display: block;
+  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.45));
   animation: bb-hud-pet-bounce 2.2s ease-in-out infinite;
   flex-shrink: 0;
 }

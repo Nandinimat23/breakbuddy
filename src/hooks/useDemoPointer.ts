@@ -9,7 +9,10 @@ import type { NormalizedPoint, TrackingFrame } from "../services/motionTracking/
  * just like what MotionTrackingService would produce, so games don't
  * need a separate demo code path.
  */
-export function useDemoPointer(containerRef: React.RefObject<HTMLElement | null>, kind: "hand" | "pose" | "face") {
+export function useDemoPointer(
+  containerRef: React.RefObject<HTMLElement | null>,
+  kind: "hand" | "pose" | "face" | "hand-face",
+) {
   const [frame, setFrame] = useState<TrackingFrame>({ hands: [], ankles: [], nose: null, timestamp: 0 });
   const pressedRef = useRef(false);
 
@@ -29,7 +32,12 @@ export function useDemoPointer(containerRef: React.RefObject<HTMLElement | null>
       const timestamp = performance.now();
       if (kind === "hand") setFrame({ hands: [point], ankles: [], nose: null, timestamp });
       else if (kind === "pose") setFrame({ hands: [], ankles: [point], nose: null, timestamp });
-      else setFrame({ hands: [], ankles: [], nose: pressedRef.current ? point : null, timestamp });
+      else if (kind === "hand-face") {
+        // The cursor always stands in for the carrying hand; holding
+        // the mouse button down additionally stands in for tilting
+        // the head back to drink.
+        setFrame({ hands: [point], ankles: [], nose: pressedRef.current ? point : null, timestamp });
+      } else setFrame({ hands: [], ankles: [], nose: pressedRef.current ? point : null, timestamp });
     };
 
     const onMove = (e: PointerEvent) => apply(toPoint(e.clientX, e.clientY));
@@ -39,7 +47,7 @@ export function useDemoPointer(containerRef: React.RefObject<HTMLElement | null>
     };
     const onUp = () => {
       pressedRef.current = false;
-      if (kind === "face") setFrame((f) => ({ ...f, nose: null }));
+      if (kind === "face" || kind === "hand-face") setFrame((f) => ({ ...f, nose: null }));
     };
 
     el.addEventListener("pointermove", onMove);

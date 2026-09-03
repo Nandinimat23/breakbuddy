@@ -5,19 +5,22 @@ import { useGameCountdown } from "../../hooks/useGameCountdown";
 import { usePetReaction } from "../../hooks/usePetReaction";
 import { formatCountdown } from "../../utils/time";
 import { GameHUD, PetCorner } from "../../components/GameHUD/GameHUD";
+import { PunchingBag } from "../../assets/gameArt/GameArt";
 import "../games-common.css";
+import "./PunchBagGame.css";
 
-// Reachable target spots (PRD section 12 example sequence), kept close
-// to center so no extreme reach is required.
+// Target spots land on the punching bag's surface (PRD section 12
+// example sequence), a tighter cluster than a free-floating target
+// since they need to visually sit on the bag illustration.
 const SPOTS = [
-  { x: 0.3, y: 0.3 }, // top left
-  { x: 0.7, y: 0.28 }, // top right
-  { x: 0.5, y: 0.45 }, // center
-  { x: 0.32, y: 0.62 }, // lower left
-  { x: 0.68, y: 0.55 }, // right
+  { x: 0.46, y: 0.4 },
+  { x: 0.54, y: 0.52 },
+  { x: 0.47, y: 0.64 },
+  { x: 0.53, y: 0.46 },
+  { x: 0.5, y: 0.58 },
 ];
 
-const HIT_RADIUS = 0.13;
+const HIT_RADIUS = 0.11;
 const TARGET_LIFESPAN_MS = 2200;
 const HIT_COOLDOWN_MS = 350;
 const HIT_MESSAGES = ["Great punch! 🥊", "Keep it up!", "Nice one!", "You're on fire!"];
@@ -99,9 +102,9 @@ export function PunchBagGame({ frame, demoMode, durationSeconds, petId, onComple
         statValue={`x${combo}`}
       />
 
-      <span className="bb-game-anchor" style={{ left: "50%", top: "68%" }} aria-hidden="true">
-        🥊
-      </span>
+      <div className="bb-punchbag-bag" aria-hidden="true">
+        <PunchingBag />
+      </div>
 
       <div
         className={`bb-game-target ${justHit ? "is-hit" : ""}`}

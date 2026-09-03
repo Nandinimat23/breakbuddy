@@ -31,7 +31,7 @@ export interface PetDefinition {
 // ---------------------------------------------------------------------------
 
 /** The kind of camera-based tracking a game relies on. */
-export type TrackingType = "hand" | "pose" | "face" | "none";
+export type TrackingType = "hand" | "pose" | "face" | "hand-face" | "none";
 
 export type GameId = "punch-bag" | "drink-up" | "kick-ball" | "poster";
 

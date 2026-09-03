@@ -40,7 +40,13 @@ export function GamePlay() {
   const camera = useCameraGame(definition?.trackingType ?? "none");
   const demoFrame = useDemoPointer(
     stageRef,
-    definition?.trackingType === "pose" ? "pose" : definition?.trackingType === "face" ? "face" : "hand",
+    definition?.trackingType === "pose"
+      ? "pose"
+      : definition?.trackingType === "face"
+        ? "face"
+        : definition?.trackingType === "hand-face"
+          ? "hand-face"
+          : "hand",
   );
 
   const pet = getPet(settings.pet);

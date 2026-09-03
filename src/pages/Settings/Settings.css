@@ -29,12 +29,9 @@
 }
 
 .bb-settings-pet-thumb {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  object-fit: cover;
-  object-position: center 15%;
-  border: 2px solid var(--color-border);
+  height: 84px;
+  width: auto;
+  display: block;
 }
 
 .bb-settings-radio-group {

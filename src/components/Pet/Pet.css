@@ -7,31 +7,23 @@
 
 .bb-pet-avatar {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: center;
-  overflow: hidden;
-  background: linear-gradient(135deg, var(--color-primary-light), #fff);
-  border: 2px solid var(--color-border);
-  border-radius: 50%;
-  box-shadow: var(--shadow-md);
   animation: bb-pet-bounce 2.4s ease-in-out infinite;
 }
 
 .bb-pet-avatar img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center 15%;
+  width: auto;
+  display: block;
+  filter: drop-shadow(0 6px 10px rgba(36, 31, 61, 0.28));
 }
 
-.bb-pet--sm .bb-pet-avatar {
-  width: 64px;
-  height: 64px;
+.bb-pet--sm .bb-pet-avatar img {
+  height: 76px;
 }
 
-.bb-pet--lg .bb-pet-avatar {
-  width: 120px;
-  height: 120px;
+.bb-pet--lg .bb-pet-avatar img {
+  height: 150px;
 }
 
 .bb-pet-bubble {

@@ -27,8 +27,8 @@ export const GAME_DEFINITIONS: GameDefinition[] = [
     name: "Drink Up",
     emoji: "🥤",
     tagline: "Stretch your neck",
-    description: "Look up and finish your drink to stretch your neck.",
-    trackingType: "face",
+    description: "Pick up your drink, bring it to your mouth, and tilt back to finish it.",
+    trackingType: "hand-face",
     duration: 18,
   },
   {
