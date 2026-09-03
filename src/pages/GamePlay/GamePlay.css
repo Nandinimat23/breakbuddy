@@ -12,6 +12,17 @@
   margin-top: var(--space-3);
 }
 
+.bb-gameplay-complete-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(36, 31, 61, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-5);
+  z-index: 90;
+}
+
 .bb-gameplay-complete {
   display: flex;
   flex-direction: column;
@@ -19,6 +30,9 @@
   text-align: center;
   gap: var(--space-3);
   padding: var(--space-7) var(--space-5);
+  max-width: 360px;
+  width: 100%;
+  box-shadow: var(--shadow-lg);
 }
 
 .bb-gameplay-score {

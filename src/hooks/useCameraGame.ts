@@ -75,7 +75,15 @@ export function useCameraGame(trackingType: TrackingType) {
     setStatus("demo");
   };
 
+  /** Explicitly release the camera/tracking as soon as a game finishes,
+   * rather than waiting for this component to unmount (PRD section 17:
+   * "Camera should turn off when the game ends"). */
+  const stopCamera = () => {
+    cleanup();
+    setStatus("idle");
+  };
+
   useEffect(() => cleanup, []);
 
-  return { videoRef, status, errorMessage, frame, start, enterDemoMode };
+  return { videoRef, status, errorMessage, frame, start, enterDemoMode, stopCamera };
 }

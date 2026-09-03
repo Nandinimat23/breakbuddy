@@ -65,6 +65,7 @@ export function GamePlay() {
     recordGameResult(finalResult);
     setResult(finalResult);
     setStage("complete");
+    if (!demoMode) camera.stopCamera();
   };
 
   const handleDone = () => {
@@ -81,8 +82,42 @@ export function GamePlay() {
     );
   }
 
+  // The camera/game stage renders from the very first frame (even while
+  // the permission modal is still showing on top of it) so that
+  // `camera.videoRef` is already attached to a real <video> element by
+  // the time `camera.start()` tries to assign the stream to it. Gating
+  // this behind `stage === "playing"` (as an earlier version did) meant
+  // the <video> didn't exist yet when the stream arrived, so nothing
+  // ever appeared and tracking never started — permission would be
+  // granted but the game would just sit there doing nothing.
+  const gameIsActive = stage === "playing" && (demoMode || camera.status === "ready");
+
   return (
     <div className="page bb-gameplay">
+      <header className="bb-gameplay-header">
+        <span>
+          {definition.emoji} {definition.name}
+        </span>
+      </header>
+
+      <div ref={stageRef}>
+        <CameraStage videoRef={camera.videoRef} active={gameIsActive} demoMode={demoMode}>
+          {gameIsActive && (
+            <GameComponent
+              frame={activeFrame}
+              demoMode={demoMode}
+              durationSeconds={definition.duration}
+              reducedMotion={settings.reducedMotion}
+              onComplete={handleComplete}
+            />
+          )}
+        </CameraStage>
+      </div>
+
+      {stage === "playing" && !demoMode && camera.status === "loading-model" && (
+        <p className="bb-gameplay-loading">Loading movement detection…</p>
+      )}
+
       {stage === "permission" && (
         <PermissionGate
           onEnable={handleStartCamera}
@@ -93,41 +128,19 @@ export function GamePlay() {
         />
       )}
 
-      {stage === "playing" && (
-        <>
-          <header className="bb-gameplay-header">
-            <span>
-              {definition.emoji} {definition.name}
-            </span>
-          </header>
-          <div ref={stageRef}>
-            <CameraStage videoRef={camera.videoRef} active={demoMode || camera.status === "ready"} demoMode={demoMode}>
-              <GameComponent
-                frame={activeFrame}
-                demoMode={demoMode}
-                durationSeconds={definition.duration}
-                reducedMotion={settings.reducedMotion}
-                onComplete={handleComplete}
-              />
-            </CameraStage>
-          </div>
-          {!demoMode && camera.status === "loading-model" && (
-            <p className="bb-gameplay-loading">Loading movement detection…</p>
-          )}
-        </>
-      )}
-
       {stage === "complete" && result && (
-        <div className="bb-gameplay-complete card">
-          <h2>Break complete! 🎉</h2>
-          <Pet petId={settings.pet} mood="celebrate" message={completionMessage} size="lg" />
-          <p className="bb-gameplay-score">Score: {result.score}</p>
-          <p className="bb-gameplay-accuracy">
-            {result.hits}/{result.attempts} · {result.accuracy}% accuracy
-          </p>
-          <Button size="lg" onClick={handleDone}>
-            Back to Work
-          </Button>
+        <div className="bb-gameplay-complete-overlay">
+          <div className="bb-gameplay-complete card">
+            <h2>Break complete! 🎉</h2>
+            <Pet petId={settings.pet} mood="celebrate" message={completionMessage} size="lg" />
+            <p className="bb-gameplay-score">Score: {result.score}</p>
+            <p className="bb-gameplay-accuracy">
+              {result.hits}/{result.attempts} · {result.accuracy}% accuracy
+            </p>
+            <Button size="lg" onClick={handleDone}>
+              Back to Work
+            </Button>
+          </div>
         </div>
       )}
     </div>
