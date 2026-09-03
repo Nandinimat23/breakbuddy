@@ -1,12 +1,31 @@
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppContext } from "../../context/AppContext";
 import { PETS } from "../../data/pets";
 import { GAME_DEFINITIONS } from "../../games/registry";
-import type { BreakFrequencyMinutes, BreakDurationSeconds, GameId, GameSelectionMode } from "../../types";
+import type {
+  BreakFrequencyMinutes,
+  BreakDurationSeconds,
+  CameraPermissionMode,
+  GameId,
+  GameSelectionMode,
+} from "../../types";
 import { Button } from "../../components/Button/Button";
-import { resetAllData, hasCameraPermission, forgetCameraPermission } from "../../utils/storage";
+import { resetAllData } from "../../utils/storage";
 import "./Settings.css";
+
+const CAMERA_MODE_OPTIONS: { value: CameraPermissionMode; title: string; description: string }[] = [
+  {
+    value: "ask-once",
+    title: "Ask once",
+    description:
+      "Show the camera explanation the first time, then start the camera right away on every break after that.",
+  },
+  {
+    value: "ask-always",
+    title: "Ask every time",
+    description: "Show the camera explanation and require a tap to enable the camera before every game.",
+  },
+];
 
 const FREQUENCY_OPTIONS: { value: BreakFrequencyMinutes; label: string }[] = [
   { value: 30, label: "Every 30 minutes" },
@@ -26,7 +45,6 @@ const DURATION_OPTIONS: { value: BreakDurationSeconds; label: string }[] = [
 export function Settings() {
   const { settings, updateSettings } = useAppContext();
   const navigate = useNavigate();
-  const [cameraRemembered, setCameraRemembered] = useState(hasCameraPermission);
 
   const toggleGame = (id: GameId) => {
     const enabled = settings.enabledGames.includes(id);
@@ -56,7 +74,8 @@ export function Settings() {
               onClick={() => updateSettings({ pet: pet.id })}
               aria-pressed={settings.pet === pet.id}
             >
-              {pet.emoji} {pet.name}
+              <img src={pet.image} alt="" className="bb-settings-pet-thumb" />
+              {pet.name}
             </button>
           ))}
         </div>
@@ -150,32 +169,29 @@ export function Settings() {
 
       <section className="card stack">
         <span className="eyebrow">Camera</span>
-        {cameraRemembered ? (
-          <>
-            <p className="bb-settings-hint">
-              Camera access is remembered — games start the camera right away instead of asking
-              each time.
-            </p>
-            <Button
-              variant="secondary"
-              onClick={() => {
-                forgetCameraPermission();
-                setCameraRemembered(false);
-              }}
+        <div className="bb-settings-radio-group" role="radiogroup" aria-label="Camera permission prompts">
+          {CAMERA_MODE_OPTIONS.map((opt) => (
+            <label
+              key={opt.value}
+              className={`bb-settings-radio-option ${settings.cameraPermissionMode === opt.value ? "is-selected" : ""}`}
             >
-              Forget camera permission
-            </Button>
-            <p className="bb-settings-hint">
-              This only makes BreakBuddy ask again before starting the camera — it doesn't change
-              your browser's own camera permission for this site.
-            </p>
-          </>
-        ) : (
-          <p className="bb-settings-hint">
-            You'll see a quick explanation the first time you open a camera-based game. After
-            that, BreakBuddy remembers and won't ask again.
-          </p>
-        )}
+              <input
+                type="radio"
+                name="cameraPermissionMode"
+                checked={settings.cameraPermissionMode === opt.value}
+                onChange={() => updateSettings({ cameraPermissionMode: opt.value })}
+              />
+              <span>
+                <span className="bb-settings-radio-option-title">{opt.title}</span>
+                <span className="bb-settings-radio-option-desc">{opt.description}</span>
+              </span>
+            </label>
+          ))}
+        </div>
+        <p className="bb-settings-hint">
+          Either way, your camera feed is processed locally in your browser and is never stored
+          or uploaded.
+        </p>
       </section>
 
       <section className="card stack">

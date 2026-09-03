@@ -47,15 +47,19 @@ export function GamePlay() {
 
   const activeFrame = demoMode ? demoFrame : camera.frame;
 
-  // Once the player has granted camera access once, don't make them
-  // click through the "Camera required" explanation again on every
-  // single break — just start the camera straight away. The browser
-  // already remembers the real OS-level permission grant; this only
-  // controls whether *our* consent modal re-appears. If the grant was
-  // ever revoked at the browser level, `camera.start()` below will
-  // still fail normally and fall back to the error state with Retry /
-  // Play Demo, same as a first-time denial would.
-  const skipPermissionPrompt = definition?.trackingType !== "none" && hasCameraPermission();
+  // Settings lets the player choose whether BreakBuddy's own "Camera
+  // required" explanation modal should reappear before every game
+  // ("Ask every time") or only the first time camera access is
+  // granted ("Ask once", the default). Either way the browser's own
+  // permission grant is unaffected — this only controls our consent
+  // modal. If the grant was ever revoked at the browser level,
+  // `camera.start()` below will still fail normally and fall back to
+  // the error state with Retry / Play Demo, same as a first-time
+  // denial would.
+  const skipPermissionPrompt =
+    definition?.trackingType !== "none" &&
+    settings.cameraPermissionMode === "ask-once" &&
+    hasCameraPermission();
 
   const handleStartCamera = async () => {
     await camera.start();
@@ -127,6 +131,7 @@ export function GamePlay() {
               demoMode={demoMode}
               durationSeconds={definition.duration}
               reducedMotion={settings.reducedMotion}
+              petId={settings.pet}
               onComplete={handleComplete}
             />
           )}

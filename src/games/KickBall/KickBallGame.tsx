@@ -1,20 +1,24 @@
 import { useEffect, useRef, useState } from "react";
 import type { GameScreenProps } from "../GameScreenProps";
 import { useGameCountdown } from "../../hooks/useGameCountdown";
+import { usePetReaction } from "../../hooks/usePetReaction";
 import { formatCountdown } from "../../utils/time";
+import { GameHUD, PetCorner } from "../../components/GameHUD/GameHUD";
 import "../games-common.css";
 
 const KICK_Y_THRESHOLD = 0.55; // upper half of frame = "leg raised"
 const KICK_TOLERANCE_X = 0.22;
 const KICK_COOLDOWN_MS = 700;
 const GOAL_ZONES = [0.25, 0.5, 0.75];
+const GOAL_MESSAGES = ["GOAL! Amazing kick! ⚽", "Woohoo! Nice shot!", "You've got this!"];
+const MISS_MESSAGES = ["Just wide — try again!", "So close!", "Almost there!"];
 
 /**
  * Game 3 — Kick the Ball (PRD section 14). Pose-tracking game: a
  * rapid upward ankle movement (edge-detected, not just "leg is up")
  * counts as one kick; landing near the current goal position scores.
  */
-export function KickBallGame({ frame, demoMode, durationSeconds, onComplete }: GameScreenProps) {
+export function KickBallGame({ frame, demoMode, durationSeconds, petId, onComplete }: GameScreenProps) {
   const [score, setScore] = useState(0);
   const [hits, setHits] = useState(0);
   const [attempts, setAttempts] = useState(0);
@@ -23,6 +27,7 @@ export function KickBallGame({ frame, demoMode, durationSeconds, onComplete }: G
   const prevY = useRef<number | null>(null);
   const lastKickAt = useRef(0);
   const finishedRef = useRef(false);
+  const { reaction, react } = usePetReaction();
 
   const finish = () => {
     if (finishedRef.current) return;
@@ -47,8 +52,10 @@ export function KickBallGame({ frame, demoMode, durationSeconds, onComplete }: G
         setHits((h) => h + 1);
         setScore((s) => s + 20);
         setFeedback("goal");
+        react(GOAL_MESSAGES[Math.floor(Math.random() * GOAL_MESSAGES.length)]);
       } else {
         setFeedback("miss");
+        react(MISS_MESSAGES[Math.floor(Math.random() * MISS_MESSAGES.length)]);
       }
       setGoalX(GOAL_ZONES[Math.floor(Math.random() * GOAL_ZONES.length)]);
       setTimeout(() => setFeedback(null), 500);
@@ -59,12 +66,13 @@ export function KickBallGame({ frame, demoMode, durationSeconds, onComplete }: G
 
   return (
     <>
-      <div className="bb-game-hud">
-        <span className="bb-game-hud-chip">⏱ {formatCountdown(remaining)}</span>
-        <span className="bb-game-hud-chip">
-          ⚽ {hits}/{attempts}
-        </span>
-      </div>
+      <GameHUD
+        timeLabel={formatCountdown(remaining)}
+        lowTime={remaining <= 5}
+        scoreValue={score}
+        statLabel="GOALS"
+        statValue={`${hits}/${attempts}`}
+      />
 
       {/* Goal net */}
       <div
@@ -95,6 +103,8 @@ export function KickBallGame({ frame, demoMode, durationSeconds, onComplete }: G
           {feedback === "goal" ? "GOAL! 🎉" : "Just wide!"}
         </span>
       )}
+
+      <PetCorner petId={petId} reaction={reaction} />
 
       <div className="bb-game-instruction">
         {demoMode

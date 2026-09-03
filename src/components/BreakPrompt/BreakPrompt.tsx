@@ -29,8 +29,8 @@ export function BreakPrompt({ petId, onLetsGo, onNotNow }: BreakPromptProps) {
           </Button>
         </div>
       </div>
-      <div className="bb-break-prompt-avatar" aria-hidden="true">
-        {pet.emoji}
+      <div className="bb-break-prompt-avatar">
+        <img src={pet.image} alt={pet.name} />
       </div>
     </div>
   );

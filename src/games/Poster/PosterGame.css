@@ -1,0 +1,94 @@
+.bb-poster-target {
+  position: absolute;
+  width: 15%;
+  aspect-ratio: 200 / 260;
+  transform: translate(-50%, -50%);
+  border: 3px dashed rgba(255, 255, 255, 0.9);
+  border-radius: 10px;
+  box-shadow: 0 0 18px rgba(255, 214, 84, 0.55);
+  opacity: 0.9;
+  z-index: 2;
+  transition: opacity 250ms ease;
+}
+
+.bb-poster-target.is-placed {
+  opacity: 0;
+}
+
+.bb-poster-carried,
+.bb-poster-mounted {
+  position: absolute;
+  width: 14%;
+  aspect-ratio: 200 / 260;
+  transform: translate(-50%, -50%);
+  filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.35));
+  transition: left 120ms ease, top 120ms ease;
+}
+
+.bb-poster-carried {
+  z-index: 3;
+  animation: bb-poster-idle-bounce 2s ease-in-out infinite;
+}
+
+.bb-poster-carried.is-carried {
+  animation: bb-poster-wobble 600ms ease-in-out infinite;
+}
+
+.bb-poster-carried svg,
+.bb-poster-mounted svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.bb-poster-mounted {
+  z-index: 1;
+  animation: bb-poster-mount-in 400ms ease;
+}
+
+@keyframes bb-poster-idle-bounce {
+  0%, 100% { transform: translate(-50%, -50%) translateY(0); }
+  50% { transform: translate(-50%, -50%) translateY(-4px); }
+}
+
+@keyframes bb-poster-wobble {
+  0%, 100% { transform: translate(-50%, -50%) rotate(-3deg); }
+  50% { transform: translate(-50%, -50%) rotate(3deg); }
+}
+
+@keyframes bb-poster-mount-in {
+  from { opacity: 0; transform: translate(-50%, -50%) scale(0.7); }
+  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+.bb-poster-progress {
+  position: absolute;
+  bottom: 52px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: var(--space-2);
+  z-index: 6;
+}
+
+.bb-poster-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  transition: background 250ms ease;
+}
+
+.bb-poster-dot.is-done {
+  background: #ffce54;
+  border-color: #ffce54;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bb-poster-carried,
+  .bb-poster-carried.is-carried,
+  .bb-poster-mounted {
+    animation: none;
+  }
+}

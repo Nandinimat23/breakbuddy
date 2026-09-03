@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import type { GameScreenProps } from "../GameScreenProps";
 import { useGameCountdown } from "../../hooks/useGameCountdown";
+import { usePetReaction } from "../../hooks/usePetReaction";
 import { formatCountdown } from "../../utils/time";
 import { ProgressBar } from "../../components/Progress/ProgressBar";
+import { GameHUD, PetCorner } from "../../components/GameHUD/GameHUD";
 import "../games-common.css";
 
 /**
@@ -19,11 +21,13 @@ const LOOK_UP_Y_THRESHOLD = 0.42;
  * holding an uncomfortable position — progress simply pauses (never
  * reverses) when you look back down.
  */
-export function DrinkUpGame({ frame, demoMode, durationSeconds, onComplete }: GameScreenProps) {
+export function DrinkUpGame({ frame, demoMode, durationSeconds, petId, onComplete }: GameScreenProps) {
   const [level, setLevel] = useState(100);
   const [lookingUp, setLookingUp] = useState(false);
   const lastTick = useRef(Date.now());
   const finishedRef = useRef(false);
+  const milestoneRef = useRef(new Set<number>());
+  const { reaction, react } = usePetReaction();
   const drainPerSecond = 100 / Math.max(6, durationSeconds * 0.8);
 
   const finish = (completedNaturally: boolean) => {
@@ -52,16 +56,26 @@ export function DrinkUpGame({ frame, demoMode, durationSeconds, onComplete }: Ga
   }, [frame]);
 
   useEffect(() => {
-    if (level <= 0) finish(true);
+    const done = Math.round(100 - level);
+    if (done >= 50 && !milestoneRef.current.has(50)) {
+      milestoneRef.current.add(50);
+      react("Almost there!");
+    }
+    if (level <= 0) {
+      react("Yay! You did it! 🎉");
+      finish(true);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [level]);
 
   return (
     <>
-      <div className="bb-game-hud">
-        <span className="bb-game-hud-chip">⏱ {formatCountdown(remaining)}</span>
-        <span className="bb-game-hud-chip">{Math.round(100 - level)}% done</span>
-      </div>
+      <GameHUD
+        timeLabel={formatCountdown(remaining)}
+        lowTime={remaining <= 5}
+        scoreValue={`${Math.round(100 - level)}%`}
+        scoreLabel="DONE"
+      />
 
       <span
         className="bb-game-anchor"
@@ -82,6 +96,8 @@ export function DrinkUpGame({ frame, demoMode, durationSeconds, onComplete }: Ga
       >
         <ProgressBar value={level} label={`Drink level: ${Math.round(level)}%`} color="linear-gradient(90deg,#ffb347,#ff6fa5)" />
       </div>
+
+      <PetCorner petId={petId} reaction={reaction} />
 
       <div className="bb-game-instruction">
         {demoMode

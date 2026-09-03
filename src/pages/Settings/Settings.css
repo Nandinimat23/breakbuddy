@@ -11,6 +11,10 @@
 
 .bb-settings-pet {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
   padding: var(--space-3);
   border-radius: var(--radius-md);
   border: 2px solid var(--color-border);
@@ -22,6 +26,54 @@
 .bb-settings-pet.is-selected {
   border-color: var(--color-primary);
   background: var(--color-primary-light);
+}
+
+.bb-settings-pet-thumb {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: center 15%;
+  border: 2px solid var(--color-border);
+}
+
+.bb-settings-radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.bb-settings-radio-option {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  border: 2px solid var(--color-border);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.bb-settings-radio-option.is-selected {
+  border-color: var(--color-primary);
+  background: var(--color-primary-light);
+}
+
+.bb-settings-radio-option input {
+  margin-top: 3px;
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.bb-settings-radio-option-title {
+  font-weight: 700;
+  display: block;
+}
+
+.bb-settings-radio-option-desc {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
 }
 
 .bb-settings-time-row {

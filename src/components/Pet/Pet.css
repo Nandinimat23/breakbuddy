@@ -9,6 +9,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
   background: linear-gradient(135deg, var(--color-primary-light), #fff);
   border: 2px solid var(--color-border);
   border-radius: 50%;
@@ -16,16 +17,21 @@
   animation: bb-pet-bounce 2.4s ease-in-out infinite;
 }
 
+.bb-pet-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 15%;
+}
+
 .bb-pet--sm .bb-pet-avatar {
   width: 64px;
   height: 64px;
-  font-size: 2rem;
 }
 
 .bb-pet--lg .bb-pet-avatar {
   width: 120px;
   height: 120px;
-  font-size: 4rem;
 }
 
 .bb-pet-bubble {

@@ -16,6 +16,8 @@ export interface PetDefinition {
   id: PetId;
   name: string;
   emoji: string;
+  /** Portrait artwork shown throughout the app instead of the emoji. */
+  image: string;
   tagline: string;
   personality: string[];
   messages: {
@@ -75,6 +77,14 @@ export interface WorkingHours {
   end: string;
 }
 
+/**
+ * Controls whether BreakBuddy's own "Camera required" explanation
+ * modal is shown before every camera-based game, or only the first
+ * time. Either way, the browser's own camera permission is requested
+ * normally — this only governs our in-app consent step.
+ */
+export type CameraPermissionMode = "ask-once" | "ask-always";
+
 export interface BreakBuddySettings {
   pet: PetId;
   workingHours: WorkingHours;
@@ -83,6 +93,7 @@ export interface BreakBuddySettings {
   enabledGames: GameId[];
   gameSelectionMode: GameSelectionMode;
   reducedMotion: boolean;
+  cameraPermissionMode: CameraPermissionMode;
 }
 
 // ---------------------------------------------------------------------------

@@ -90,9 +90,11 @@ export function Dashboard() {
         Take a break now
       </Button>
 
-      <div className="bb-dashboard-pet-corner">
-        <Pet petId={settings.pet} mood="idle" />
-      </div>
+      {!breakDue && (
+        <div className="bb-dashboard-pet-corner">
+          <Pet petId={settings.pet} mood="idle" />
+        </div>
+      )}
 
       {breakDue && <BreakPrompt petId={pet.id} onLetsGo={handleLetsGo} onNotNow={handleNotNow} />}
     </div>

@@ -1,4 +1,6 @@
 import type { PetDefinition } from "../types";
+import buddyImage from "../assets/pets/buddy.jpg";
+import mittensImage from "../assets/pets/mittens.jpg";
 
 /**
  * Pet catalogue. Adding a third pet later is just adding another
@@ -9,6 +11,7 @@ export const PETS: PetDefinition[] = [
     id: "dog",
     name: "Buddy",
     emoji: "🐶",
+    image: buddyImage,
     tagline: "The energetic pup",
     personality: ["Cheerful", "Energetic", "Encouraging"],
     messages: {
@@ -31,6 +34,7 @@ export const PETS: PetDefinition[] = [
     id: "cat",
     name: "Mittens",
     emoji: "🐱",
+    image: mittensImage,
     tagline: "The playful cat",
     personality: ["Playful", "Slightly sarcastic", "Cute"],
     messages: {

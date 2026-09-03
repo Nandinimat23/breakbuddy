@@ -1,5 +1,5 @@
 import type { NormalizedPoint, TrackingFrame } from "../services/motionTracking/MotionTrackingService";
-import type { GameResult } from "../types";
+import type { GameResult, PetId } from "../types";
 
 /**
  * The contract every game component implements (PRD section 30).
@@ -19,6 +19,8 @@ export interface GameScreenProps {
   /** Configured break duration in seconds (PRD settings: 15/30/60s). */
   durationSeconds: number;
   reducedMotion: boolean;
+  /** The player's chosen companion, so games can show pet reaction bubbles. */
+  petId: PetId;
   onComplete: (result: Omit<GameResult, "gameId" | "completedAt" | "demoMode" | "accuracy">) => void;
 }
 

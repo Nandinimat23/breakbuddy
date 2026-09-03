@@ -2,7 +2,9 @@ import { useEffect, useRef, useState } from "react";
 import type { GameScreenProps } from "../GameScreenProps";
 import { firstPoint } from "../GameScreenProps";
 import { useGameCountdown } from "../../hooks/useGameCountdown";
+import { usePetReaction } from "../../hooks/usePetReaction";
 import { formatCountdown } from "../../utils/time";
+import { GameHUD, PetCorner } from "../../components/GameHUD/GameHUD";
 import "../games-common.css";
 
 // Reachable target spots (PRD section 12 example sequence), kept close
@@ -18,20 +20,24 @@ const SPOTS = [
 const HIT_RADIUS = 0.13;
 const TARGET_LIFESPAN_MS = 2200;
 const HIT_COOLDOWN_MS = 350;
+const HIT_MESSAGES = ["Great punch! 🥊", "Keep it up!", "Nice one!", "You're on fire!"];
 
 /**
  * Game 1 — Punch the Bag (PRD section 12). Hand-tracking game: hit
  * the floating target before it expires and it moves to a new spot.
+ * Tracks a combo streak that resets on a miss, shown in the HUD.
  */
-export function PunchBagGame({ frame, demoMode, durationSeconds, onComplete }: GameScreenProps) {
+export function PunchBagGame({ frame, demoMode, durationSeconds, petId, onComplete }: GameScreenProps) {
   const [score, setScore] = useState(0);
   const [hits, setHits] = useState(0);
   const [attempts, setAttempts] = useState(0);
+  const [combo, setCombo] = useState(0);
   const [targetIndex, setTargetIndex] = useState(0);
   const [justHit, setJustHit] = useState(false);
   const spawnedAt = useRef(Date.now());
   const lastHitAt = useRef(0);
   const finishedRef = useRef(false);
+  const { reaction, react } = usePetReaction();
 
   const finish = () => {
     if (finishedRef.current) return;
@@ -46,6 +52,7 @@ export function PunchBagGame({ frame, demoMode, durationSeconds, onComplete }: G
     const id = setInterval(() => {
       if (Date.now() - spawnedAt.current > TARGET_LIFESPAN_MS) {
         setAttempts((a) => a + 1);
+        setCombo(0);
         setTargetIndex((i) => (i + 1 + Math.floor(Math.random() * 3)) % SPOTS.length);
         spawnedAt.current = Date.now();
       }
@@ -66,6 +73,12 @@ export function PunchBagGame({ frame, demoMode, durationSeconds, onComplete }: G
       setScore((s) => s + 10);
       setHits((h) => h + 1);
       setAttempts((a) => a + 1);
+      setCombo((c) => {
+        const next = c + 1;
+        if (next > 0 && next % 3 === 0) react(`Combo x${next}! 🔥`);
+        else react(HIT_MESSAGES[Math.floor(Math.random() * HIT_MESSAGES.length)]);
+        return next;
+      });
       setTargetIndex((i) => (i + 1 + Math.floor(Math.random() * 3)) % SPOTS.length);
       setJustHit(true);
       setTimeout(() => setJustHit(false), 250);
@@ -78,10 +91,13 @@ export function PunchBagGame({ frame, demoMode, durationSeconds, onComplete }: G
 
   return (
     <>
-      <div className="bb-game-hud">
-        <span className="bb-game-hud-chip">⏱ {formatCountdown(remaining)}</span>
-        <span className="bb-game-hud-chip">Score: {score}</span>
-      </div>
+      <GameHUD
+        timeLabel={formatCountdown(remaining)}
+        lowTime={remaining <= 5}
+        scoreValue={score}
+        statLabel="COMBO"
+        statValue={`x${combo}`}
+      />
 
       <span className="bb-game-anchor" style={{ left: "50%", top: "68%" }} aria-hidden="true">
         🥊
@@ -103,6 +119,8 @@ export function PunchBagGame({ frame, demoMode, durationSeconds, onComplete }: G
       {pointer && (
         <div className="bb-game-pointer" style={{ left: `${pointer.x * 100}%`, top: `${pointer.y * 100}%` }} />
       )}
+
+      <PetCorner petId={petId} reaction={reaction} />
 
       <div className="bb-game-instruction">
         {demoMode ? "Move your mouse over the targets" : "Punch toward the glowing target!"}

@@ -26,6 +26,7 @@ export const DEFAULT_SETTINGS: BreakBuddySettings = {
   enabledGames: DEFAULT_ENABLED_GAMES,
   gameSelectionMode: "user-chooses",
   reducedMotion: false,
+  cameraPermissionMode: "ask-once",
 };
 
 function todayKey(): string {

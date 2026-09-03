@@ -37,8 +37,8 @@ export function Pet({ petId, mood = "idle", message, size = "sm" }: PetProps) {
           {message ?? resolvedMessage}
         </div>
       )}
-      <div className="bb-pet-avatar" aria-label={`${pet.name} the ${pet.id}`}>
-        {pet.emoji}
+      <div className="bb-pet-avatar">
+        <img src={pet.image} alt={`${pet.name} the ${pet.tagline.toLowerCase()}`} />
       </div>
     </div>
   );

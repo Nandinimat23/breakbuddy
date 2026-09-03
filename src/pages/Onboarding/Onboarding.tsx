@@ -39,7 +39,9 @@ export function Onboarding() {
             className={`bb-onboarding-pet ${selected === pet.id ? "is-selected" : ""}`}
             onClick={() => setSelected(pet.id)}
           >
-            <span className="bb-onboarding-pet-emoji">{pet.emoji}</span>
+            <span className="bb-onboarding-pet-portrait">
+              <img src={pet.image} alt="" />
+            </span>
             <span className="bb-onboarding-pet-name">{pet.name}</span>
             <span className="bb-onboarding-pet-tagline">{pet.tagline}</span>
             <span className="bb-onboarding-pet-traits">
