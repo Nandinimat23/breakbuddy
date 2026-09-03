@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAppContext } from "../../context/AppContext";
 import { getGameDefinition } from "../../games/registry";
@@ -14,6 +14,7 @@ import { useCameraGame } from "../../hooks/useCameraGame";
 import { useDemoPointer } from "../../hooks/useDemoPointer";
 import { makeGameResult } from "../../utils/scoring";
 import { track } from "../../utils/analytics";
+import { hasCameraPermission } from "../../utils/storage";
 import "./GamePlay.css";
 
 type Stage = "permission" | "playing" | "complete";
@@ -46,10 +47,28 @@ export function GamePlay() {
 
   const activeFrame = demoMode ? demoFrame : camera.frame;
 
+  // Once the player has granted camera access once, don't make them
+  // click through the "Camera required" explanation again on every
+  // single break — just start the camera straight away. The browser
+  // already remembers the real OS-level permission grant; this only
+  // controls whether *our* consent modal re-appears. If the grant was
+  // ever revoked at the browser level, `camera.start()` below will
+  // still fail normally and fall back to the error state with Retry /
+  // Play Demo, same as a first-time denial would.
+  const skipPermissionPrompt = definition?.trackingType !== "none" && hasCameraPermission();
+
   const handleStartCamera = async () => {
     await camera.start();
     setStage("playing");
   };
+
+  useEffect(() => {
+    if (skipPermissionPrompt && camera.status === "idle") {
+      handleStartCamera();
+    }
+    // Only ever auto-start once per mount, when we already trust the grant.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [skipPermissionPrompt]);
 
   const handleStartDemo = () => {
     camera.enterDemoMode();
@@ -125,6 +144,7 @@ export function GamePlay() {
           status={camera.status}
           errorMessage={camera.errorMessage}
           onDemoMode={handleStartDemo}
+          skipPrompt={skipPermissionPrompt}
         />
       )}
 
@@ -153,12 +173,14 @@ function PermissionGate({
   onDemoMode,
   status,
   errorMessage,
+  skipPrompt,
 }: {
   onEnable: () => void;
   onSkip: () => void;
   onDemoMode: () => void;
   status: string;
   errorMessage: string;
+  skipPrompt: boolean;
 }) {
   if (status === "error") {
     return (
@@ -169,6 +191,12 @@ function PermissionGate({
         onDemoMode={onDemoMode}
       />
     );
+  }
+
+  // Already granted before — skip the explanation and just show a
+  // brief "starting up" state while the camera/model finish loading.
+  if (skipPrompt) {
+    return <p className="bb-gameplay-loading">Turning on your camera…</p>;
   }
 
   return (

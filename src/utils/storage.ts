@@ -15,6 +15,7 @@ const KEYS = {
   settings: "breakbuddy:settings",
   progress: "breakbuddy:progress",
   events: "breakbuddy:events",
+  cameraGranted: "breakbuddy:cameraGranted",
 } as const;
 
 export const DEFAULT_SETTINGS: BreakBuddySettings = {
@@ -92,4 +93,25 @@ export function saveProgress(progress: ProgressState): void {
 
 export function resetAllData(): void {
   Object.values(KEYS).forEach((k) => localStorage.removeItem(k));
+}
+
+/**
+ * Remembers that the player has already gone through BreakBuddy's own
+ * "Camera required" consent step once. Once true, camera-based games
+ * skip straight to requesting the camera instead of showing the modal
+ * again every time — the browser itself already remembers the actual
+ * OS-level permission grant, so re-explaining it on every break is
+ * just friction. Settings still offers a way to forget this and see
+ * the explanation again.
+ */
+export function hasCameraPermission(): boolean {
+  return localStorage.getItem(KEYS.cameraGranted) === "true";
+}
+
+export function setCameraPermissionGranted(): void {
+  safeWrite(KEYS.cameraGranted, true);
+}
+
+export function forgetCameraPermission(): void {
+  localStorage.removeItem(KEYS.cameraGranted);
 }

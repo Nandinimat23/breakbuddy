@@ -3,6 +3,7 @@ import { CameraError, CameraService } from "../services/camera/CameraService";
 import { MotionTrackingService, type TrackingFrame } from "../services/motionTracking/MotionTrackingService";
 import type { TrackingType } from "../types";
 import { track } from "../utils/analytics";
+import { setCameraPermissionGranted } from "../utils/storage";
 
 export type CameraGameStatus =
   | "idle"
@@ -46,6 +47,7 @@ export function useCameraGame(trackingType: TrackingType) {
     try {
       const stream = await camera.requestCamera();
       track("camera_permission_granted");
+      setCameraPermissionGranted();
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         await videoRef.current.play();

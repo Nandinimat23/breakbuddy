@@ -1,10 +1,11 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppContext } from "../../context/AppContext";
 import { PETS } from "../../data/pets";
 import { GAME_DEFINITIONS } from "../../games/registry";
 import type { BreakFrequencyMinutes, BreakDurationSeconds, GameId, GameSelectionMode } from "../../types";
 import { Button } from "../../components/Button/Button";
-import { resetAllData } from "../../utils/storage";
+import { resetAllData, hasCameraPermission, forgetCameraPermission } from "../../utils/storage";
 import "./Settings.css";
 
 const FREQUENCY_OPTIONS: { value: BreakFrequencyMinutes; label: string }[] = [
@@ -25,6 +26,7 @@ const DURATION_OPTIONS: { value: BreakDurationSeconds; label: string }[] = [
 export function Settings() {
   const { settings, updateSettings } = useAppContext();
   const navigate = useNavigate();
+  const [cameraRemembered, setCameraRemembered] = useState(hasCameraPermission);
 
   const toggleGame = (id: GameId) => {
     const enabled = settings.enabledGames.includes(id);
@@ -144,6 +146,36 @@ export function Settings() {
             </button>
           ))}
         </div>
+      </section>
+
+      <section className="card stack">
+        <span className="eyebrow">Camera</span>
+        {cameraRemembered ? (
+          <>
+            <p className="bb-settings-hint">
+              Camera access is remembered — games start the camera right away instead of asking
+              each time.
+            </p>
+            <Button
+              variant="secondary"
+              onClick={() => {
+                forgetCameraPermission();
+                setCameraRemembered(false);
+              }}
+            >
+              Forget camera permission
+            </Button>
+            <p className="bb-settings-hint">
+              This only makes BreakBuddy ask again before starting the camera — it doesn't change
+              your browser's own camera permission for this site.
+            </p>
+          </>
+        ) : (
+          <p className="bb-settings-hint">
+            You'll see a quick explanation the first time you open a camera-based game. After
+            that, BreakBuddy remembers and won't ask again.
+          </p>
+        )}
       </section>
 
       <section className="card stack">
