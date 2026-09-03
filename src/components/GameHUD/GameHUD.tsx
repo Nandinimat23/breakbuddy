@@ -23,16 +23,14 @@ export interface GameHUDProps {
 export function GameHUD({ timeLabel, lowTime, scoreLabel = "SCORE", scoreValue, statLabel, statValue }: GameHUDProps) {
   return (
     <div className="bb-hud">
-      <div className="bb-hud-chip">
-        {scoreValue !== undefined ? (
-          <>
-            <span className="bb-hud-chip-label">{scoreLabel}</span>
-            <span className="bb-hud-chip-value">{scoreValue}</span>
-          </>
-        ) : (
-          <span aria-hidden="true" />
-        )}
-      </div>
+      {scoreValue !== undefined ? (
+        <div className="bb-hud-chip">
+          <span className="bb-hud-chip-label">{scoreLabel}</span>
+          <span className="bb-hud-chip-value">{scoreValue}</span>
+        </div>
+      ) : (
+        <span aria-hidden="true" />
+      )}
 
       <div className={`bb-hud-chip bb-hud-chip--timer ${lowTime ? "is-low" : ""}`}>
         <span className="bb-hud-chip-icon" aria-hidden="true">
@@ -41,16 +39,14 @@ export function GameHUD({ timeLabel, lowTime, scoreLabel = "SCORE", scoreValue, 
         <span className="bb-hud-chip-value bb-hud-mono">{timeLabel}</span>
       </div>
 
-      <div className="bb-hud-chip">
-        {statValue !== undefined ? (
-          <>
-            <span className="bb-hud-chip-label">{statLabel}</span>
-            <span className="bb-hud-chip-value">{statValue}</span>
-          </>
-        ) : (
-          <span aria-hidden="true" />
-        )}
-      </div>
+      {statValue !== undefined ? (
+        <div className="bb-hud-chip">
+          <span className="bb-hud-chip-label">{statLabel}</span>
+          <span className="bb-hud-chip-value">{statValue}</span>
+        </div>
+      ) : (
+        <span aria-hidden="true" />
+      )}
     </div>
   );
 }

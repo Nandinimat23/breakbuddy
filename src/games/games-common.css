@@ -2,7 +2,10 @@
 
 .bb-game-instruction {
   position: absolute;
-  bottom: var(--space-3);
+  /* Clears the pet companion + reaction bubble row in the bottom-left
+     corner (see GameHUD.css .bb-hud-pet), which is taller now that it
+     shows the whole character instead of a small circular avatar. */
+  bottom: 104px;
   left: 50%;
   transform: translateX(-50%);
   background: rgba(0, 0, 0, 0.55);

@@ -63,7 +63,7 @@
 
 .bb-poster-progress {
   position: absolute;
-  bottom: 52px;
+  bottom: 152px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
