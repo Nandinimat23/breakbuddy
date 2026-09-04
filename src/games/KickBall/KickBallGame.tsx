@@ -8,9 +8,18 @@ import { SoccerBall } from "../../assets/gameArt/GameArt";
 import "../games-common.css";
 import "./KickBallGame.css";
 
-const KICK_Y_THRESHOLD = 0.55; // upper half of frame = "leg raised"
 const KICK_TOLERANCE_X = 0.22;
 const KICK_COOLDOWN_MS = 700;
+// Kick detection is based on how far the leg point has risen within a
+// short rolling window, not on crossing some fixed absolute Y value.
+// An absolute threshold assumes the tracked landmark (ankle) always
+// rests near the bottom of frame — but MediaPipe sometimes falls back
+// to the knee (see MotionTrackingService), which rests much higher up,
+// and every user sits at a different distance from their camera. A
+// "did it move up fast enough" check works the same regardless of
+// which landmark or framing is in play.
+const RISE_WINDOW_MS = 350;
+const MIN_RISE = 0.07; // normalized units (~7% of frame height) within the window
 const GOAL_ZONES = [0.25, 0.5, 0.75];
 const GOAL_MESSAGES = ["GOAL! Amazing kick! ⚽", "Woohoo! Nice shot!", "You've got this!"];
 const MISS_MESSAGES = ["Just wide — try again!", "So close!", "Almost there!"];
@@ -35,7 +44,7 @@ export function KickBallGame({ frame, demoMode, durationSeconds, petId, onComple
   const [feedback, setFeedback] = useState<"goal" | "miss" | null>(null);
   const [ballPos, setBallPos] = useState({ x: 0.5, y: REST_Y });
   const [flying, setFlying] = useState(false);
-  const prevY = useRef<number | null>(null);
+  const history = useRef<{ y: number; t: number }[]>([]);
   const lastKickAt = useRef(0);
   const finishedRef = useRef(false);
   const flyingRef = useRef(false);
@@ -61,12 +70,20 @@ export function KickBallGame({ frame, demoMode, durationSeconds, petId, onComple
       setBallPos((p) => ({ x: p.x + (dribbleX - p.x) * 0.25, y: REST_Y }));
     }
 
-    const wasBelow = prevY.current !== null && prevY.current > KICK_Y_THRESHOLD;
-    const isAbove = ankle.y <= KICK_Y_THRESHOLD;
-    const cooledDown = Date.now() - lastKickAt.current > KICK_COOLDOWN_MS;
+    const now = Date.now();
+    history.current.push({ y: ankle.y, t: now });
+    // Keep only the recent window; a couple of extra entries past the
+    // cutoff are fine since we just need the oldest-in-window sample.
+    while (history.current.length > 1 && now - history.current[0].t > RISE_WINDOW_MS) {
+      history.current.shift();
+    }
+    const oldest = history.current[0];
+    const rise = oldest ? oldest.y - ankle.y : 0; // positive = moved up
+    const cooledDown = now - lastKickAt.current > KICK_COOLDOWN_MS;
 
-    if (wasBelow && isAbove && cooledDown && !flyingRef.current) {
-      lastKickAt.current = Date.now();
+    if (rise >= MIN_RISE && cooledDown && !flyingRef.current) {
+      history.current = [];
+      lastKickAt.current = now;
       const kickedFromX = ballPos.x;
       const scored = Math.abs(kickedFromX - goalX) <= KICK_TOLERANCE_X;
       setAttempts((a) => a + 1);
@@ -93,7 +110,6 @@ export function KickBallGame({ frame, demoMode, durationSeconds, petId, onComple
       }, FLIGHT_MS);
       setTimeout(() => setFeedback(null), 500);
     }
-    prevY.current = ankle.y;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [frame]);
 

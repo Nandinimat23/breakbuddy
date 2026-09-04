@@ -147,8 +147,18 @@ export class MotionTrackingService {
       const result: PoseLandmarkerResult = this.poseLandmarker.detectForVideo(video, now);
       const pose = result.landmarks?.[0];
       if (pose) {
-        // 27 = left ankle, 28 = right ankle (MediaPipe Pose topology).
-        frame.ankles = [pose[27], pose[28]].filter(Boolean).map(mirrorX);
+        // Ankles (27/28) are frequently out of frame on a typical
+        // laptop webcam — MediaPipe still returns a landmark for them,
+        // but it's an unreliable extrapolated guess with a low
+        // `visibility` score once the actual body part is off-screen.
+        // Knees (25/26) are visible in far more real-world framings and
+        // still capture a "leg raised to kick" motion well, so prefer
+        // whichever pair is actually visible, ankles first.
+        const isVisible = (p: { visibility: number } | undefined) => p && p.visibility > 0.5;
+        const ankles = [pose[27], pose[28]].filter(isVisible);
+        const knees = [pose[25], pose[26]].filter(isVisible);
+        const legs = ankles.length ? ankles : knees;
+        frame.ankles = legs.map(mirrorX);
       }
     }
 
