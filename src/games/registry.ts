@@ -58,3 +58,14 @@ export function getGameDefinition(id: GameId): GameDefinition {
   if (!def) throw new Error(`Unknown game id: ${id}`);
   return def;
 }
+
+/**
+ * Picks a random enabled game — used to jump straight into a game when
+ * "Game selection" is set to Random, instead of showing the picker
+ * screen (see GameSelection). Falls back across every game if, somehow,
+ * none are enabled so callers always get a playable id back.
+ */
+export function pickRandomGame(enabledGames: GameId[]): GameId {
+  const pool = enabledGames.length ? enabledGames : DEFAULT_ENABLED_GAMES;
+  return pool[Math.floor(Math.random() * pool.length)];
+}

@@ -1,6 +1,7 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppContext } from "../../context/AppContext";
-import { PETS } from "../../data/pets";
+import { PETS, getPet } from "../../data/pets";
 import { GAME_DEFINITIONS } from "../../games/registry";
 import type {
   BreakFrequencyMinutes,
@@ -11,6 +12,7 @@ import type {
 } from "../../types";
 import { Button } from "../../components/Button/Button";
 import { resetAllData } from "../../utils/storage";
+import { getNotificationPermission, requestNotificationPermission } from "../../utils/notifications";
 import "./Settings.css";
 
 const CAMERA_MODE_OPTIONS: { value: CameraPermissionMode; title: string; description: string }[] = [
@@ -28,6 +30,7 @@ const CAMERA_MODE_OPTIONS: { value: CameraPermissionMode; title: string; descrip
 ];
 
 const FREQUENCY_OPTIONS: { value: BreakFrequencyMinutes; label: string }[] = [
+  { value: 15, label: "Every 15 minutes" },
   { value: 30, label: "Every 30 minutes" },
   { value: 60, label: "Every 60 minutes" },
   { value: 90, label: "Every 90 minutes" },
@@ -45,6 +48,12 @@ const DURATION_OPTIONS: { value: BreakDurationSeconds; label: string }[] = [
 export function Settings() {
   const { settings, updateSettings } = useAppContext();
   const navigate = useNavigate();
+  const [notifPermission, setNotifPermission] = useState(getNotificationPermission());
+
+  const handleEnableNotifications = async () => {
+    const result = await requestNotificationPermission();
+    setNotifPermission(result);
+  };
 
   const toggleGame = (id: GameId) => {
     const enabled = settings.enabledGames.includes(id);
@@ -192,6 +201,35 @@ export function Settings() {
           Either way, your camera feed is processed locally in your browser and is never stored
           or uploaded.
         </p>
+      </section>
+
+      <section className="card stack">
+        <span className="eyebrow">Notifications</span>
+        {notifPermission === "unsupported" && (
+          <p className="bb-settings-hint">Your browser doesn't support desktop notifications.</p>
+        )}
+        {notifPermission === "granted" && (
+          <p className="bb-settings-hint">
+            🔔 Desktop notifications are on — {getPet(settings.pet).name} will alert you even if
+            you're working in another window.
+          </p>
+        )}
+        {notifPermission === "denied" && (
+          <p className="bb-settings-hint">
+            Notifications are blocked. Enable them for this site in your browser's settings to get
+            break alerts while you're working elsewhere.
+          </p>
+        )}
+        {notifPermission === "default" && (
+          <>
+            <p className="bb-settings-hint">
+              Since you won't always be looking at this tab, turn on desktop notifications so{" "}
+              {getPet(settings.pet).name} can reach you even when you're working in another
+              window.
+            </p>
+            <Button onClick={handleEnableNotifications}>Enable desktop notifications</Button>
+          </>
+        )}
       </section>
 
       <section className="card stack">

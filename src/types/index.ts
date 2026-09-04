@@ -67,7 +67,7 @@ export interface GameResult {
 // Settings (persisted to localStorage)
 // ---------------------------------------------------------------------------
 
-export type BreakFrequencyMinutes = 30 | 60 | 90 | 120 | 180;
+export type BreakFrequencyMinutes = 15 | 30 | 60 | 90 | 120 | 180;
 export type BreakDurationSeconds = 15 | 30 | 60;
 export type GameSelectionMode = "user-chooses" | "random";
 
