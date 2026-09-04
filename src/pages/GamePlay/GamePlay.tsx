@@ -26,7 +26,7 @@ type Stage = "permission" | "playing" | "complete";
  */
 export function GamePlay() {
   const { gameId } = useParams<{ gameId: GameId }>();
-  const { settings, recordGameResult } = useAppContext();
+  const { settings, recordGameResult, completeBreak } = useAppContext();
   const navigate = useNavigate();
   const stageRef = useRef<HTMLDivElement>(null);
 
@@ -92,6 +92,10 @@ export function GamePlay() {
     track("game_completed", { gameId: definition.id, score: finalResult.score });
     track("game_score", { gameId: definition.id, score: finalResult.score });
     recordGameResult(finalResult);
+    // Reschedules the next automatic reminder from right now, whether
+    // this break was started manually, from the pet prompt, or from a
+    // desktop notification — completing it is what "resets the clock".
+    completeBreak();
     setResult(finalResult);
     setStage("complete");
     if (!demoMode) camera.stopCamera();

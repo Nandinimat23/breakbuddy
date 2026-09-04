@@ -8,6 +8,9 @@ export interface ReminderServiceConfig {
 
 type Listener = () => void;
 
+/** How far out "Not Now" pushes the next reminder. */
+const SNOOZE_MINUTES = 5;
+
 /**
  * Dedicated timer/reminder service (PRD section 23).
  *
@@ -28,9 +31,16 @@ export class ReminderService {
   private dueListeners = new Set<Listener>();
   private paused = false;
 
-  constructor(config: ReminderServiceConfig) {
+  constructor(config: ReminderServiceConfig, initialNextBreakAt?: number) {
     this.config = config;
-    this.nextBreakAt = Date.now() + config.intervalMinutes * 60_000;
+    this.nextBreakAt = initialNextBreakAt ?? Date.now() + config.intervalMinutes * 60_000;
+  }
+
+  /** Epoch ms of the next scheduled break — callers persist this so the
+   * schedule survives a reload instead of restarting from "now" every
+   * time the app happens to remount. */
+  getNextBreakAt(): number {
+    return this.nextBreakAt;
   }
 
   start(): void {
@@ -43,8 +53,14 @@ export class ReminderService {
     this.tickHandle = null;
   }
 
-  /** Snooze without completing a game ("Not Now") — timer keeps running. */
+  /**
+   * Snooze without completing a game ("Not Now"). Pushes the next
+   * reminder a few minutes out — without this, `nextBreakAt` stays in
+   * the past and the very next tick would immediately re-fire the
+   * prompt again instead of actually deferring it.
+   */
   snooze(): void {
+    this.nextBreakAt = Date.now() + SNOOZE_MINUTES * 60_000;
     this.paused = false;
   }
 

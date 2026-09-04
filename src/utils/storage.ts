@@ -16,6 +16,7 @@ const KEYS = {
   progress: "breakbuddy:progress",
   events: "breakbuddy:events",
   cameraGranted: "breakbuddy:cameraGranted",
+  nextBreakAt: "breakbuddy:nextBreakAt",
 } as const;
 
 export const DEFAULT_SETTINGS: BreakBuddySettings = {
@@ -115,4 +116,22 @@ export function setCameraPermissionGranted(): void {
 
 export function forgetCameraPermission(): void {
   localStorage.removeItem(KEYS.cameraGranted);
+}
+
+/**
+ * When the next automatic break is due (epoch ms). Persisted so the
+ * countdown survives a page reload or the tab being closed and
+ * reopened — without this, whoever leaves BreakBuddy open in the
+ * background and never touches the tab again would find the schedule
+ * silently reset every time the app happens to remount.
+ */
+export function loadNextBreakAt(): number | null {
+  const raw = localStorage.getItem(KEYS.nextBreakAt);
+  if (!raw) return null;
+  const n = Number(raw);
+  return Number.isFinite(n) ? n : null;
+}
+
+export function saveNextBreakAt(timestamp: number): void {
+  safeWrite(KEYS.nextBreakAt, timestamp);
 }
